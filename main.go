@@ -14,14 +14,6 @@ import (
 type Progressive struct {
 	Url string `json:"url"`
 	Height int32 `json:"height"`
-	//Profile int `json:"profile"`
-	//Width int `json:"width"`
-	//Mime string `json:"mime"`
-	//Fps int `json:"fps"`
-	//Cdn string `json:"cdn"`
-	//Quality string `json:"quality"`
-	//Id string `json:"id"`
-	//Origin string `json:"origin"`
 }
 
 type File struct {
@@ -30,12 +22,9 @@ type File struct {
 
 type Request struct {
 	Files File
-	//Lang string `json:"lang"`
-	//Cookie string `json:"cookie_domain"`
 }
 
 type Config struct {
-	//CDN string `json:"cdn_url"`
 	Req Request `json:"request"`
 }
 
@@ -94,7 +83,7 @@ func getVideoConfig (uri string) *Config {
 }
 
 // select best quality video based on file's height,
-// once it is find, return the url corresponding
+// once it is found, return the url corresponding
 //
 func pickBestQuality (config *Config) string {
 	var foo int32 = -1
@@ -124,7 +113,7 @@ func buildFileName (uri string) string {
 	return filename
 }
 
-// creates filename in OS filesystem
+// creates file in OS filesystem
 func createFile (filename string) *os.File {
 	file, err := os.Create (filename)
 	if err != nil {
@@ -134,7 +123,7 @@ func createFile (filename string) *os.File {
 	return file
 }
 
-// create http client in order to download the resource
+// creates http client in order to download the video
 func createHttpClient () *http.Client {
 	client := http.Client {
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -160,5 +149,5 @@ func downloadFile (file *os.File, client *http.Client, uri string) {
 	}
 	defer file.Close ()
 
-	fmt.Println ("Bytes downloaded...", size)
+	fmt.Printf ("%d bytes downloaded\n", size)
 }
