@@ -40,7 +40,7 @@ type Config struct {
 }
 
 // usage:
-//	./vimeo [URL][VIDEO_ID]
+//	./vimeo [VIDEO_URL][VIDEO_ID]
 //
 func main () {
 	var video string = os.Args [1]
@@ -53,9 +53,9 @@ func main () {
 		video += "/"
 	}
 
-	video += "config"
-
 	fmt.Printf ("Downloading video %s ...please wait\n", video)
+
+	video += "config"
 
 	var uri string = pickBestQuality (getVideoConfig (video))
 	var filename string = buildFileName (uri)
@@ -94,7 +94,7 @@ func getVideoConfig (uri string) *Config {
 }
 
 // select best quality video based on file's height,
-// once best quality is find, return the url corresponding
+// once it is find, return the url corresponding
 //
 func pickBestQuality (config *Config) string {
 	var foo int32 = -1
