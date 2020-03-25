@@ -66,6 +66,8 @@ func main () {
 
 }
 
+// get config settings of the media, needed to figure out
+// best quality available
 func getVideoConfig (uri string) *Config {
 	//uri := "https://player.vimeo.com/video/354915591/config"
 	//url := "https://player.vimeo.com/video/354915352/config"
@@ -91,8 +93,8 @@ func getVideoConfig (uri string) *Config {
 	return &config
 }
 
-// select best quality video based on height of the file,
-// once best quality is find, return the url of the resource
+// select best quality video based on file's height,
+// once best quality is find, return the url corresponding
 //
 func pickBestQuality (config *Config) string {
 	var foo int32 = -1
