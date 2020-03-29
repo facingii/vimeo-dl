@@ -11,6 +11,16 @@ import (
 	"strings"
 )
 
+const (
+	VimeoPlayerBaseUrl    = "https://player.vimeo.com/video/"
+	DownLoadInProgress    = "Downloading video %s...please wait\n"
+	UsageMessage          = "You must specify video URL or VIDEO ID\n\nUsage:\n\tvimeo [VIDEO_URL][VIDEO_ID]\n\n"
+	DownloadFinishMessage = "%d bytes downloaded\n"
+	HttpString            = "http"
+	ConfigString          = "config"
+	SlashString           = "/"
+)
+
 type Progressive struct {
 	Url string `json:"url"`
 	Height int32 `json:"height"`
@@ -32,35 +42,37 @@ type Config struct {
 //	./vimeo [VIDEO_URL][VIDEO_ID]
 //
 func main () {
+	if len (os.Args) < 2 {
+		fmt.Printf (UsageMessage)
+		os.Exit (0)
+	}
+
 	var video string = os.Args [1]
 
-	if !strings.HasPrefix (video, "http") {
-		video = "https://player.vimeo.com/video/" + video
+	if !strings.HasPrefix (video, HttpString) {
+		video = VimeoPlayerBaseUrl + video
 	}
 
-	if !strings.HasSuffix (video, "/") {
-		video += "/"
+	if !strings.HasSuffix (video, SlashString) {
+		video += SlashString
 	}
 
-	fmt.Printf ("Downloading video %s ...please wait\n", video)
+	fmt.Printf (DownLoadInProgress, video [:len (video) - 1])
 
-	video += "config"
+	video += ConfigString
 
 	var uri string = pickBestQuality (getVideoConfig (video))
 	var filename string = buildFileName (uri)
 	var file *os.File = createFile (filename)
 	var client *http.Client = createHttpClient ()
 
-	downloadFile (file, client, uri)
-
+	var bytesDownloaded int64 = downloadFile (file, client, uri)
+	fmt.Printf (DownloadFinishMessage, bytesDownloaded)
 }
 
 // get config settings of the media, needed to figure out
 // best quality available
 func getVideoConfig (uri string) *Config {
-	//uri := "https://player.vimeo.com/video/354915591/config"
-	//url := "https://player.vimeo.com/video/354915352/config"
-
 	resp, err := http.Get (uri)
 	if err != nil {
 		panic (err)
@@ -107,7 +119,7 @@ func buildFileName (uri string) string {
 	}
 
 	path := fileUrl.Path
-	segments := strings.Split (path, "/")
+	segments := strings.Split (path, SlashString)
 	filename := segments [len (segments) - 1]
 
 	return filename
@@ -136,7 +148,7 @@ func createHttpClient () *http.Client {
 }
 
 // do the download
-func downloadFile (file *os.File, client *http.Client, uri string) {
+func downloadFile (file *os.File, client *http.Client, uri string) int64 {
 	resp, err := client.Get (uri)
 	if err != nil {
 		panic (err)
@@ -149,5 +161,5 @@ func downloadFile (file *os.File, client *http.Client, uri string) {
 	}
 	defer file.Close ()
 
-	fmt.Printf ("%d bytes downloaded\n", size)
+	return size
 }
