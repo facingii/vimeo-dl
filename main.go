@@ -5,20 +5,24 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/schollz/progressbar"
 )
 
 const (
-	VimeoPlayerBaseUrl    = "https://player.vimeo.com/video/"
-	DownLoadInProgress    = "Downloading video %s...please wait\n"
-	UsageMessage          = "You must specify video URL or VIDEO ID\n\nUsage:\n\tvimeo [VIDEO_URL][VIDEO_ID]\n\n"
-	DownloadFinishMessage = "%d bytes downloaded\n"
-	HttpString            = "http"
-	ConfigString          = "config"
-	SlashString           = "/"
+	VimeoPlayerBaseUrl     = "https://player.vimeo.com/video/"
+	DownLoadInProgress     = "Downloading video %s...please wait\n"
+	UsageMessage           = "You must specify video URL or VIDEO ID\n\nUsage:\n\tvimeo [VIDEO_URL][VIDEO_ID]\n\n"
+	DownloadFinishMessage  = "%d bytes downloaded\n"
+	ProgressbarDescription = "Transfer"
+	HttpString             = "http"
+	ConfigString           = "config"
+	SlashString            = "/"
 )
 
 type Progressive struct {
@@ -78,8 +82,6 @@ func getVideoConfig (uri string) *Config {
 		panic (err)
 	}
 
-	defer resp.Body.Close ()
-
 	html, err := ioutil.ReadAll (resp.Body)
 	if err != nil {
 		panic (err)
@@ -89,6 +91,11 @@ func getVideoConfig (uri string) *Config {
 	err = json.Unmarshal (html, &config)
 	if err != nil {
 		panic (err)
+	}
+
+	err = resp.Body.Close ()
+	if err != nil {
+		log.Fatal (err.Error ())
 	}
 
 	return &config
@@ -153,13 +160,23 @@ func downloadFile (file *os.File, client *http.Client, uri string) int64 {
 	if err != nil {
 		panic (err)
 	}
-	defer resp.Body.Close ()
 
-	size, err := io.Copy (file, resp.Body)
+	bar := progressbar.DefaultBytes ( resp.ContentLength, ProgressbarDescription,);
+
+	size, err := io.Copy (io.MultiWriter (file, bar), resp.Body)
 	if err != nil {
 		panic (err)
 	}
-	defer file.Close ()
+
+	err = resp.Body.Close ()
+	if err != nil {
+		log.Fatal (err.Error ())
+	}
+
+	err = file.Close ()
+	if err != nil {
+		log.Fatal (err.Error ())
+	}
 
 	return size
 }
