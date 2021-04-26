@@ -1,6 +1,6 @@
-vimeo-dl help us to download video from vimeo.com
+# vimeo-dl help us to download video from vimeo.com
 
-# BUILD
+## BUILD
 
 	- requires go 1.0 or greater
 	- GOPATH properly set up
@@ -8,11 +8,11 @@ vimeo-dl help us to download video from vimeo.com
 		go build
 	  inside downloaded folder 
 
-# INSTALLATION
+## INSTALLATION
 
 	no instalation is required
 
-# USAGE
+## USAGE
 
 	vimeo-dl [VIDEO_URL][VIDEO_ID]
 
