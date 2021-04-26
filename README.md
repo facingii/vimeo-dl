@@ -2,15 +2,13 @@
 
 ## BUILD
 
-	- requires go 1.0 or greater
+	- Requires go 1.0 or greater
 	- GOPATH properly set up
-	- in order to build do
-		go build
-	  inside downloaded folder 
+	- In order to build do **go build** inside downloaded folder 
 
 ## INSTALLATION
 
-	no instalation is required
+	No instalation is required
 
 ## USAGE
 
